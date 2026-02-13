@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>For You ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:#ffd6e7;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+/* Sections */
+.section{
+    display:none;
+    width:95%;
+    max-width:950px;
+}
+.show{ display:block; }
+
+/* FIRST PAGE */
+.container{
+    display:flex;
+    background:white;
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    overflow:hidden;
+}
+
+.left{
+    flex:1;
+    background:#ffeaf4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.left img{ width:70%; }
+
+.right{
+    flex:1;
+    padding:40px;
+    text-align:center;
+}
+
+.letter-box{
+    background:#ffb6c1;
+    padding:25px;
+    border-radius:15px;
+}
+
+button{
+    margin-top:20px;
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:#ff4d88;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{ background:#e6005c; }
+
+/* GAME */
+.game-container{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    text-align:center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4, 60px);
+    gap:8px;
+    justify-content:center;
+    margin-top:20px;
+}
+
+.cell{
+    width:60px;
+    height:60px;
+    background:#ffb6c1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+    cursor:pointer;
+    border-radius:8px;
+    font-size:18px;
+}
+
+.cell.revealed{
+    background:#fff0f5;
+}
+
+.cell.mine{
+    background:#ff8fa3;
+}
+
+.hint{
+    margin-top:10px;
+    font-style:italic;
+    color:#e6005c;
+}
+
+.message{
+    margin-top:15px;
+    font-weight:bold;
+}
+
+/* LETTER */
+.card{
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    text-align:center;
+}
+
+.card img{
+    width:250px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+h1{ color:#ff4d88; }
+
+/* Magic Ink */
+.line{
+    opacity:0;
+    transform:translateY(10px);
+    transition:0.8s ease;
+}
+.line.showLine{
+    opacity:1;
+    transform:translateY(0);
+}
+</style>
+</head>
+
+<body>
+
+<!-- FIRST PAGE -->
+<div id="intro" class="section show">
+    <div class="container">
+        <div class="left">
+            <img src="https://i.postimg.cc/t4R1TGkP/flower-01.png">
+        </div>
+        <div class="right">
+            <div class="letter-box">
+                <p>
+                Hello, so as we know today is valentines,  
+                I know maybe we arent exactly a couple,  
+                but this for you, a little letter of gratitude 💌
+                </p>
+            </div>
+            <button onclick="startGame()">Open It ❤️</button>
+        </div>
+    </div>
+</div>
+
+<!-- GAME -->
+<div id="gameSection" class="section">
+    <div class="game-container">
+        <h2>Valentine Puzzle 💗</h2>
+        <div class="hint">
+            Hint: The broken heart is on the square related to my name ফাতিন.
+        </div>
+        <div class="grid" id="grid"></div>
+        <div class="message" id="gameMessage"></div>
+        <button onclick="resetGame()">Restart</button>
+    </div>
+</div>
+
+<!-- LETTER -->
+<div id="letter" class="section">
+    <div class="card">
+        <img src="https://i.postimg.cc/jjmCZwb3/Untitled-design-(11)-01.png">
+        <h1>Happy Valentine’s Day ❤️</h1>
+
+        <p class="line">
+        I just wanted to take a second to tell you how much you actually mean to me. 
+        Honestly, seeing you happy is the best part of my day. 
+        Your smile literally changes my whole mood, and your laugh is hands down my favorite sound in the world.
+        </p>
+
+        <p class="line">
+        Here’s to so much more of that, more laughing until our stomachs hurt, 
+        more binging dramas together, and exploring all the places we’ve talked about. 
+        With Ramadan coming up soon, I’m actually really looking forward to it. 
+        Talk till seheri, maybe iftar together also.
+        </p>
+
+        <p class="line">
+        Please just take care of yourself for me. Eat properly, sleep well, and keep your routine. 
+        I really don’t want you getting sick again, but even if you do, please bolio. 
+        I want to be there for you through everything.
+        </p>
+
+        <p class="line">
+        I’m always here for you, no matter what. Whether you want to rant, gossip, 
+        or just hang out, you know I’m not going anywhere.
+        </p>
+
+        <p class="line">
+        Meet me soon, okay? And look, if you ever feel like breaking the two-week rule... 
+        just saying, let me know :3 (Don’t get angry pls!)
+        </p>
+
+        <p class="line">
+        Take care. I love you.
+        </p>
+    </div>
+</div>
+
+<script>
+const size = 4;
+const mineIndex = 2; // square 3
+let revealedCount = 0;
+
+function startGame(){
+    document.getElementById("intro").classList.remove("show");
+    document.getElementById("gameSection").classList.add("show");
+    initGame();
+}
+
+function initGame(){
+    const grid = document.getElementById("grid");
+    grid.innerHTML="";
+    revealedCount=0;
+    document.getElementById("gameMessage").innerText="";
+
+    for(let i=0;i<size*size;i++){
+        const cell=document.createElement("div");
+        cell.classList.add("cell");
+        cell.innerText=i+1;
+        cell.addEventListener("click",()=>revealCell(i));
+        grid.appendChild(cell);
+    }
+}
+
+function revealCell(index){
+    const grid=document.getElementById("grid").children;
+    const cell=grid[index];
+
+    if(cell.classList.contains("revealed")) return;
+
+    cell.classList.add("revealed");
+
+    if(index===mineIndex){
+        cell.innerText="💔";
+        cell.classList.add("mine");
+        document.getElementById("gameMessage").innerText="Oops! That was the broken heart 💔 Try again!";
+        setTimeout(initGame,1200);
+        return;
+    }
+
+    cell.innerText="❤️";
+    revealedCount++;
+
+    if(revealedCount===size*size-1){
+        winGame();
+    }
+}
+
+function resetGame(){
+    initGame();
+}
+
+function winGame(){
+    document.getElementById("gameSection").classList.remove("show");
+    document.getElementById("letter").classList.add("show");
+    revealLetter();
+}
+
+function revealLetter(){
+    const lines=document.querySelectorAll(".line");
+    lines.forEach((line,i)=>{
+        setTimeout(()=>{
+            line.classList.add("showLine");
+        },i*1200);
+    });
+}
+</script>
+
+</body>
+</html>
+
